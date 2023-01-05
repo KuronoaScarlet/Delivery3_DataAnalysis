@@ -12,6 +12,20 @@ namespace Gamekit3D
 
         void OnTriggerEnter(Collider other)
         {
+            var d = other.GetComponent<Damageable>();
+            if (d == null)
+                return;
+
+            var msg = new Damageable.DamageMessage()
+            {
+                amount = d.maxHitPoints,
+                damager = this,
+                direction = Vector3.up,
+                stopCamera = false
+            };
+
+            d.ApplyDamage(msg);
+
             var pc = other.GetComponent<PlayerController>();
             if (pc != null)
             {

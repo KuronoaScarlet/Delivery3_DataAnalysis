@@ -694,11 +694,11 @@ PlayerSettings:
     m_VersionName: 
   apiCompatibilityLevel: 6
   activeInputHandler: 0
-  cloudProjectId: 
+  cloudProjectId: a20a26e3-5ff0-4a94-9ccf-164a5885b722
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: Platformer3DClient
-  organizationId: 
+  projectName: Delivery3_DataAnalysis (2)
+  organizationId: uri576
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 1
   playerDataPath: 
