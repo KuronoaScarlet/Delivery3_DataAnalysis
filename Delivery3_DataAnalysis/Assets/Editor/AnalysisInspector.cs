@@ -3,12 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+public enum HeatMapType
+{
+    HITS,
+    DEATH,
+    POSITION,
+}
 public class AnalysisInspector : EditorWindow
 {
-    string myString = "Hello World";
+    string myString = "Here goes php";
     bool groupEnabled;
     bool myBool = true;
     float myFloat = 1.23f;
+    DataManager[] heatMap;
+    HeatMapType type;
 
     // Add menu item named "My Window" to the Window menu
     [MenuItem("Window/HeatMaps")]
@@ -21,15 +29,16 @@ public class AnalysisInspector : EditorWindow
     void OnGUI()
     {
         GUILayout.Label("Base Settings", EditorStyles.boldLabel);
-        myString = EditorGUILayout.TextField("Text Field", myString);
-
-        if(GUILayout.Button("Instantiate cube in selected object"))
+        myString = EditorGUILayout.TextField("PHP name", myString);
+        //type = EditorGUILayout.field
+        if (GUILayout.Button("Get Info from PHP"))
         {
-            var selectedObject = Selection.activeGameObject;
-            if (selectedObject != null)
-                selectedObject.transform.rotation = Quaternion.Euler(Random.Range(-360f, 360f), Random.Range(-360f, 360f), Random.Range(-360f, 360f));
+            Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap(myString);
         }
-
+        if (GUILayout.Button("Clear Heatmap"))
+        {
+            Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorFinishHeatMap();
+        }
         groupEnabled = EditorGUILayout.BeginToggleGroup("Optional Settings", groupEnabled);
         myBool = EditorGUILayout.Toggle("Toggle", myBool);
         myFloat = EditorGUILayout.Slider("Slider", myFloat, -3, 3);

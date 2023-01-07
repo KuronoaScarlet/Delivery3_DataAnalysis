@@ -40,13 +40,13 @@ public class PositionData
     public float gameTime;
 
 }
-
 public class DataManager : MonoBehaviour, IMessageReceiver
 {
     //General
     public string url = "https://citmalumnes.upc.es/~carlesgdlm/";
     bool sendingPos = false;
     public GameObject prefab;
+    public List<GameObject> allDebugPrefabs;
     //Posititon
     GameObject player;
     public PositionData[] posData;
@@ -77,13 +77,7 @@ public class DataManager : MonoBehaviour, IMessageReceiver
         m_Damageable.onDamageMessageReceivers.Remove(this);
     }
     private void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.P))
-        {
-            StartCoroutine(GetData("GetHits.php"));
-            StartCoroutine(GetData("GetDeaths.php"));
-            StartCoroutine(GetData("GetPosition.php"));
-        }
+    { 
         if(!sendingPos)
             StartCoroutine(PosAdded("PositionTracker.php"));
     }
@@ -195,6 +189,8 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         posData[i - 1].playerForwardY = float.Parse(posPoint[4].Replace(".", ","));
                         posData[i - 1].playerForwardZ = float.Parse(posPoint[5].Replace(".", ","));
                         posData[i - 1].gameTime = float.Parse(posPoint[6].Replace(".", ","));
+                        allDebugPrefabs.Add(Instantiate(prefab,new Vector3(posData[i - 1].playerPosX, posData[i - 1].playerPosY, posData[i - 1].playerPosZ),Quaternion.identity, GameObject.Find("Trash").transform));
+                        
                     }
                 }
             }
@@ -206,7 +202,7 @@ public class DataManager : MonoBehaviour, IMessageReceiver
     {
         gameTime = Time.time.ToString().Replace(",", ".");
         sendingPos = true;
-        yield return new WaitForSeconds(1.5f);//3
+        yield return new WaitForSeconds(0f);//3
         WWWForm formPosiiton = new WWWForm();
         formPosiiton.AddField("playerPosX", player.transform.position.x.ToString().Replace(",", "."));
         formPosiiton.AddField("playerPosY", player.transform.position.y.ToString().Replace(",", "."));
@@ -250,6 +246,20 @@ public class DataManager : MonoBehaviour, IMessageReceiver
             }
             Debug.Log(lastQuery);
         }
+    }
+    public void EditorStartHeatMap(string php)
+    {
+        allDebugPrefabs.Clear();
+        StartCoroutine(GetData(php));
+        Debug.Log(php);
+    }
+    public void EditorFinishHeatMap()
+    {
+        for (int i = 0; i < allDebugPrefabs.Count; i++)
+        {
+            DestroyImmediate(allDebugPrefabs[i]);
+        }
+        allDebugPrefabs.Clear();
     }
 }
 
