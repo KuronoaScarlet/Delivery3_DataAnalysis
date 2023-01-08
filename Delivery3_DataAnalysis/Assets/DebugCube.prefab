@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 9065330140406618026}
   - component: {fileID: 5341119364065116211}
   - component: {fileID: 6333597181637431557}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: DebugCube
   m_TagString: Untagged
   m_Icon: {fileID: 0}

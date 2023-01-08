@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System;
 using static Gamekit3D.Damageable;
+using static UnityEditor.Progress;
 
 public enum HitType
 {
@@ -65,6 +66,14 @@ public class DataManager : MonoBehaviour, IMessageReceiver
     public HitData[] deathData;
     string[] deathPoints;
     string[] deathDataString;
+    public LayerMask hitLayer;
+    public LayerMask deathsLayer;
+    GameObject[] heatBoxes;
+    float allowableDistance = 5f;
+    Material cubeMaterial;
+    float red;
+    float blue;
+    float colorAdjuster = 0.2f;
 
     SendData data = new SendData();
     private void OnEnable()
@@ -72,6 +81,8 @@ public class DataManager : MonoBehaviour, IMessageReceiver
         m_Damageable = GameObject.Find("Ellen").GetComponent<Damageable>();
         m_Damageable.onDamageMessageReceivers.Add(this);
         player = GameObject.Find("Ellen");
+        heatBoxes = GameObject.FindGameObjectsWithTag("HitTag");
+        cubeMaterial = hitsAndDeathsMarker.GetComponent<Material>();
     }
     private void OnDisable()
     {
@@ -154,6 +165,19 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         hitData[i - 1].enemyPosY = float.Parse(hitDataString[6].Replace(".", ","));
                         hitData[i - 1].enemyPosZ = float.Parse(hitDataString[7].Replace(".", ","));
                         hitData[i - 1].gameTime = float.Parse(hitDataString[8].Replace(".", ","));
+
+                        GameObject debugprefab = Instantiate(hitsAndDeathsMarker, new Vector3(hitData[i - 1].playerPosX, hitData[i - 1].playerPosY, hitData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
+                        debugprefab.layer = hitLayer;
+                        debugprefab.tag = "HitTag";
+                        SetColor(debugprefab);
+                        
+                        allDebugPrefabs.Add(debugprefab);
+
+                        for (int j = 0; j < allDebugPrefabs.Count; j++)
+                        {
+                            if (j != (allDebugPrefabs.Count - 1))
+                                allDebugPrefabs[j].transform.LookAt(allDebugPrefabs[j + 1].transform);
+                        }
                     }
                 }
                 else if(php == "GetDeaths.php")
@@ -173,6 +197,15 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         deathData[i - 1].enemyPosY = float.Parse(deathDataString[6].Replace(".", ","));
                         deathData[i - 1].enemyPosZ = float.Parse(deathDataString[7].Replace(".", ","));
                         deathData[i - 1].gameTime = float.Parse(deathDataString[8].Replace(".", ","));
+
+                        GameObject debugprefab = Instantiate(hitsAndDeathsMarker, new Vector3(deathData[i - 1].playerPosX, deathData[i - 1].playerPosY, deathData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
+                        allDebugPrefabs.Add(debugprefab);
+
+                        for (int j = 0; j < allDebugPrefabs.Count; j++)
+                        {
+                            if (j != (allDebugPrefabs.Count - 1))
+                                allDebugPrefabs[j].transform.LookAt(allDebugPrefabs[j + 1].transform);
+                        }
                     }
                 }
                 else if(php == "GetPosition.php")
@@ -269,6 +302,25 @@ public class DataManager : MonoBehaviour, IMessageReceiver
         }
         allDebugPrefabs.Clear();
     }
+
+    public void SetColor(GameObject hitCube)
+    {
+        foreach (GameObject item in heatBoxes)
+        {
+            Vector2 distCheck = new Vector2(item.transform.position.x, item.transform.position.z) - new Vector2(hitCube.transform.position.x, hitCube.transform.position.z);
+            float dist = distCheck.sqrMagnitude;
+            Debug.Log("Distances " + dist);
+            if (dist <= allowableDistance)
+            {
+                // Here's where the color is actually adjusted.
+                // It starts blue (cool) by default and moves towards red (hot)
+                red += colorAdjuster;
+                blue -= colorAdjuster;
+
+                cubeMaterial.color = new Color(red, cubeMaterial.color.g, blue);
+            }
+        }
+    }
 }
 
 ///////////////PHP////////////////
@@ -284,4 +336,3 @@ public class SendData
     public WWWForm GetForm() { return form; }
     public string GetPHP() { return php; }
 }
-
