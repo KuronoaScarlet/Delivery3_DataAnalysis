@@ -45,7 +45,8 @@ public class DataManager : MonoBehaviour, IMessageReceiver
     //General
     public string url = "https://citmalumnes.upc.es/~carlesgdlm/";
     bool sendingPos = false;
-    public GameObject prefab;
+    public GameObject positionArrow;
+    public GameObject hitsAndDeathsMarker;
     public List<GameObject> allDebugPrefabs;
     //Posititon
     GameObject player;
@@ -189,8 +190,15 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         posData[i - 1].playerForwardY = float.Parse(posPoint[4].Replace(".", ","));
                         posData[i - 1].playerForwardZ = float.Parse(posPoint[5].Replace(".", ","));
                         posData[i - 1].gameTime = float.Parse(posPoint[6].Replace(".", ","));
-                        allDebugPrefabs.Add(Instantiate(prefab,new Vector3(posData[i - 1].playerPosX, posData[i - 1].playerPosY, posData[i - 1].playerPosZ),Quaternion.identity, GameObject.Find("Trash").transform));
-                        
+
+                        GameObject debugprefab = Instantiate(positionArrow, new Vector3(posData[i - 1].playerPosX, posData[i - 1].playerPosY, posData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
+                        allDebugPrefabs.Add(debugprefab);
+
+                        for(int j = 0; j < allDebugPrefabs.Count; j++)
+                        {
+                            if(j != (allDebugPrefabs.Count - 1))
+                                allDebugPrefabs[j].transform.LookAt(allDebugPrefabs[j+1].transform);
+                        }
                     }
                 }
             }
@@ -202,7 +210,7 @@ public class DataManager : MonoBehaviour, IMessageReceiver
     {
         gameTime = Time.time.ToString().Replace(",", ".");
         sendingPos = true;
-        yield return new WaitForSeconds(0f);//3
+        yield return new WaitForSeconds(0.1f);//3
         WWWForm formPosiiton = new WWWForm();
         formPosiiton.AddField("playerPosX", player.transform.position.x.ToString().Replace(",", "."));
         formPosiiton.AddField("playerPosY", player.transform.position.y.ToString().Replace(",", "."));

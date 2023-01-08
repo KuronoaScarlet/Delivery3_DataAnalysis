@@ -11,7 +11,6 @@ public enum HeatMapType
 }
 public class AnalysisInspector : EditorWindow
 {
-    string myString = "Here goes php";
     bool groupEnabled;
     bool myBool = true;
     float myFloat = 1.23f;
@@ -28,13 +27,23 @@ public class AnalysisInspector : EditorWindow
 
     void OnGUI()
     {
-        GUILayout.Label("Base Settings", EditorStyles.boldLabel);
-        myString = EditorGUILayout.TextField("PHP name", myString);
-        //type = EditorGUILayout.field
-        if (GUILayout.Button("Get Info from PHP"))
+        GUILayout.Label("Data Getters", EditorStyles.boldLabel);
+        if (GUILayout.Button("Get Position Data"))
         {
-            Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap(myString);
+            Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetPosition.php");
         }
+        GUILayout.Space(10f);
+        if (GUILayout.Button("Get Hits Data"))
+        {
+            Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetHits.php");
+        }
+        GUILayout.Space(10f);
+        if (GUILayout.Button("Get Deaths Data"))
+        {
+            Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetDeaths.php");
+        }
+        GUILayout.Space(20f);
+         GUILayout.Label("Clear", EditorStyles.boldLabel);
         if (GUILayout.Button("Clear Heatmap"))
         {
             Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorFinishHeatMap();
