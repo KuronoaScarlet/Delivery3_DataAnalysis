@@ -70,10 +70,24 @@ public class DataManager : MonoBehaviour, IMessageReceiver
     public LayerMask deathsLayer;
     GameObject[] heatBoxes;
     float allowableDistance = 5f;
-    Material cubeMaterial;
+    public Material cubeMaterial;
     float red;
     float blue;
     float colorAdjuster = 0.2f;
+    //// List to store the position and orientation of the player when they are hit
+    //private List<Vector3> hitCubes = new List<Vector3>();
+
+    //// Prefab for the cube that represents each hit point on the heatmap
+    //public GameObject hitPointPrefab;
+
+    //// Gradient to use for coloring the cubes
+    //public Gradient colorGradient;
+
+    //// The maximum number of hit points that can be displayed on the heatmap
+    //public int maxHitPoints = 1000;
+
+    //// The size of each cube in the heatmap
+    //public float cubeSize = 0.1f;
 
     SendData data = new SendData();
     private void OnEnable()
@@ -81,8 +95,6 @@ public class DataManager : MonoBehaviour, IMessageReceiver
         m_Damageable = GameObject.Find("Ellen").GetComponent<Damageable>();
         m_Damageable.onDamageMessageReceivers.Add(this);
         player = GameObject.Find("Ellen");
-        heatBoxes = GameObject.FindGameObjectsWithTag("HitTag");
-        cubeMaterial = hitsAndDeathsMarker.GetComponent<Material>();
     }
     private void OnDisable()
     {
@@ -169,8 +181,10 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         GameObject debugprefab = Instantiate(hitsAndDeathsMarker, new Vector3(hitData[i - 1].playerPosX, hitData[i - 1].playerPosY, hitData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
                         debugprefab.layer = hitLayer;
                         debugprefab.tag = "HitTag";
+                        heatBoxes = GameObject.FindGameObjectsWithTag("HitTag");
                         SetColor(debugprefab);
-                        
+                        //ColorCubes();
+
                         allDebugPrefabs.Add(debugprefab);
 
                         for (int j = 0; j < allDebugPrefabs.Count; j++)
@@ -321,6 +335,28 @@ public class DataManager : MonoBehaviour, IMessageReceiver
             }
         }
     }
+    //void ColorCubes()
+    //{
+    //    // Loop through all the hit points and color the cubes
+    //    foreach (Vector3 hitCube in hitCubes)
+    //    {
+    //        // Find all the cubes within a certain radius of the current hit point
+    //        Collider[] colliders = Physics.OverlapSphere(hitCube, cubeSize * 2);
+
+    //        // Calculate the color for the current hit point based on the number of hit points in its proximity
+    //        Color color = colorGradient.Evaluate(colliders.Length / maxHitPoints);
+
+    //        // Set the color of each collider (i.e. each cube)
+    //        foreach (Collider collider in colliders)
+    //        {
+    //            Renderer renderer = collider.GetComponent<Renderer>();
+    //            if (renderer != null)
+    //            {
+    //                renderer.material.color = color;
+    //            }
+    //        }
+    //    }
+    //}
 }
 
 ///////////////PHP////////////////
