@@ -47,7 +47,8 @@ public class DataManager : MonoBehaviour, IMessageReceiver
     public string url = "https://citmalumnes.upc.es/~carlesgdlm/";
     bool sendingPos = false;
     public GameObject positionArrow;
-    public GameObject hitsAndDeathsMarker;
+    public GameObject hitsMarker;
+    public GameObject deathsMarker;
     public List<GameObject> allDebugPrefabs;
     //Posititon
     GameObject player;
@@ -70,6 +71,7 @@ public class DataManager : MonoBehaviour, IMessageReceiver
     List<GameObject> deathCubes = new List<GameObject>();
     Gradient gradient;
     float proximityDistance;
+    float transparency;
 
     SendData data = new SendData();
     private void OnEnable()
@@ -161,7 +163,7 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         hitData[i - 1].enemyPosZ = float.Parse(hitDataString[7].Replace(".", ","));
                         hitData[i - 1].gameTime = float.Parse(hitDataString[8].Replace(".", ","));
 
-                        GameObject debugprefab = Instantiate(hitsAndDeathsMarker, new Vector3(hitData[i - 1].playerPosX, hitData[i - 1].playerPosY, hitData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
+                        GameObject debugprefab = Instantiate(hitsMarker, new Vector3(hitData[i - 1].playerPosX, hitData[i - 1].playerPosY, hitData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
                         debugprefab.tag = "HitTag";
                         hitCubes.Add(debugprefab);
                         allDebugPrefabs.Add(debugprefab);
@@ -172,6 +174,7 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                 {
                     deathPoints = lastQuery.Split("*");
                     deathData = new HitData[deathPoints.Length-1];
+                    deathCubes.Clear();
                     for (int i = 1; i < deathPoints.Length; i++)
                     {
                         deathDataString = deathPoints[i].Split("/");
@@ -186,7 +189,7 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         deathData[i - 1].enemyPosZ = float.Parse(deathDataString[7].Replace(".", ","));
                         deathData[i - 1].gameTime = float.Parse(deathDataString[8].Replace(".", ","));
 
-                        GameObject debugprefab = Instantiate(hitsAndDeathsMarker, new Vector3(deathData[i - 1].playerPosX, deathData[i - 1].playerPosY, deathData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
+                        GameObject debugprefab = Instantiate(deathsMarker, new Vector3(deathData[i - 1].playerPosX, deathData[i - 1].playerPosY, deathData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
                         debugprefab.tag = "DeathTag";
                         deathCubes.Add(debugprefab);
                         allDebugPrefabs.Add(debugprefab);
@@ -282,10 +285,11 @@ public class DataManager : MonoBehaviour, IMessageReceiver
         StartCoroutine(GetData(php));
         Debug.Log(php);
     }
-    public void EditorStartHeatMap(string php, Gradient g, float r)
+    public void EditorStartHeatMap(string php, Gradient g, float r, float t)
     {
         gradient = g;
         proximityDistance = r;
+        transparency = t;
         StartCoroutine(GetData(php));
         Debug.Log(php);
     }
@@ -318,10 +322,13 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                 materialPropertyBlock.SetColor("tempCol", gradient.Evaluate(proximityCount / heatMapCubes.Count));
             }
             // Set the material color of the instance
-
             var tempMaterial = new Material(thisCube.GetComponent<Renderer>().sharedMaterial);
             tempMaterial.color = materialPropertyBlock.GetColor("tempCol");
+            Color tempColor = tempMaterial.color;
+            tempColor.a = transparency;
+            tempMaterial.color = tempColor;
             thisCube.GetComponent<Renderer>().sharedMaterial = tempMaterial;
+            thisCube.transform.localScale *= (1 + (proximityCount / heatMapCubes.Count)) / 2;
         }
     }
 }

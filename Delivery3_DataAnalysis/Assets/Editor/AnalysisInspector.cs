@@ -15,6 +15,7 @@ public class AnalysisInspector : EditorWindow
     HeatMapType heatMap;
     Gradient gradient = new Gradient();
     float resolution;
+    float transparency;
 
     // Add menu item named "My Window" to the Window menu
     [MenuItem("Window/HeatMaps")]
@@ -38,6 +39,7 @@ public class AnalysisInspector : EditorWindow
             GUILayout.Space(10f);
             EditorGUILayout.GradientField(gradient);
             resolution = EditorGUILayout.Slider("Resolution", resolution, 25, 45);
+            transparency = EditorGUILayout.Slider("Tranparency", transparency, 0.5f, 1f);
         }
 
         GUILayout.Space(10f);
@@ -47,10 +49,10 @@ public class AnalysisInspector : EditorWindow
             switch (heatMap)
             {
                 case HeatMapType.HITS:
-                    Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetHits.php", gradient,resolution);
+                    Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetHits.php", gradient,resolution,transparency);
                     break;
                 case HeatMapType.DEATH:
-                    Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetDeaths.php",gradient,resolution);
+                    Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetDeaths.php",gradient,resolution,transparency);
                     break;
                 case HeatMapType.POSITION:
                     Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetPosition.php");
