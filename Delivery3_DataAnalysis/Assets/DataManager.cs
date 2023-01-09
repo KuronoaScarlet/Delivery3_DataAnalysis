@@ -67,8 +67,9 @@ public class DataManager : MonoBehaviour, IMessageReceiver
     string[] deathPoints;
     string[] deathDataString;
     public LayerMask hitLayer;
-    public LayerMask deathsLayer;
+    public LayerMask deathLayer;
     List<GameObject> hitCubes = new List<GameObject>();
+    List<GameObject> deathCubes = new List<GameObject>();
     public Gradient gradient;
     public float proximityDistance = 2.0f;
 
@@ -174,7 +175,7 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                                 allDebugPrefabs[j].transform.LookAt(allDebugPrefabs[j + 1].transform);
                         }
                     }
-                    SetColor();
+                    SetColor(hitCubes);
                 }
                 else if(php == "GetDeaths.php")
                 {
@@ -195,6 +196,9 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         deathData[i - 1].gameTime = float.Parse(deathDataString[8].Replace(".", ","));
 
                         GameObject debugprefab = Instantiate(hitsAndDeathsMarker, new Vector3(deathData[i - 1].playerPosX, deathData[i - 1].playerPosY, deathData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
+                        debugprefab.layer = deathLayer;
+                        debugprefab.tag = "DeathTag";
+                        deathCubes.Add(debugprefab);
                         allDebugPrefabs.Add(debugprefab);
 
                         for (int j = 0; j < allDebugPrefabs.Count; j++)
@@ -202,6 +206,7 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                             if (j != (allDebugPrefabs.Count - 1))
                                 allDebugPrefabs[j].transform.LookAt(allDebugPrefabs[j + 1].transform);
                         }
+                        SetColor(deathCubes);
                     }
                 }
                 else if(php == "GetPosition.php")
@@ -220,8 +225,8 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         posData[i - 1].playerForwardZ = float.Parse(posPoint[5].Replace(".", ","));
                         posData[i - 1].gameTime = float.Parse(posPoint[6].Replace(".", ","));
 
-                        if (i != 1 && (posData[i-1].playerPosX != posData[i-2].playerPosX && posData[i - 1].playerPosY != posData[i - 2].playerPosY && posData[i - 1].playerPosZ != posData[i - 2].playerPosZ))
-                        {
+                        //if (i != 1 && (posData[i-1].playerPosX != posData[i-2].playerPosX && posData[i - 1].playerPosY != posData[i - 2].playerPosY && posData[i - 1].playerPosZ != posData[i - 2].playerPosZ))
+                        //{
                             GameObject debugprefab = Instantiate(positionArrow, new Vector3(posData[i - 1].playerPosX, posData[i - 1].playerPosY, posData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
                             allDebugPrefabs.Add(debugprefab);
 
@@ -230,7 +235,7 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                                 if (j != (allDebugPrefabs.Count - 1))
                                     allDebugPrefabs[j].transform.LookAt(allDebugPrefabs[j + 1].transform);
                             }
-                        }                        
+                        //}                        
                     }
                 }
             }
@@ -242,7 +247,7 @@ public class DataManager : MonoBehaviour, IMessageReceiver
     {
         gameTime = Time.time.ToString().Replace(",", ".");
         sendingPos = true;
-        yield return new WaitForSeconds(0.1f);//3
+        yield return new WaitForSeconds(0.2f);//3
         WWWForm formPosiiton = new WWWForm();
         formPosiiton.AddField("playerPosX", player.transform.position.x.ToString().Replace(",", "."));
         formPosiiton.AddField("playerPosY", player.transform.position.y.ToString().Replace(",", "."));
@@ -302,14 +307,14 @@ public class DataManager : MonoBehaviour, IMessageReceiver
         allDebugPrefabs.Clear();
     }
 
-    public void SetColor()
+    public void SetColor(List<GameObject> heatMapCubes)
     {
-        foreach (GameObject thisCube in hitCubes)
+        foreach (GameObject thisCube in heatMapCubes)
         {
             MaterialPropertyBlock materialPropertyBlock = new MaterialPropertyBlock();
             float proximityCount = 0;
 
-            foreach (GameObject otherCube in hitCubes)
+            foreach (GameObject otherCube in heatMapCubes)
             {
                 if (Vector3.Distance(otherCube.transform.position, thisCube.transform.position) <= proximityDistance)
                 {
@@ -319,7 +324,7 @@ public class DataManager : MonoBehaviour, IMessageReceiver
             }
             if (proximityCount > 0)
             {
-                materialPropertyBlock.SetColor("tempCol", gradient.Evaluate(proximityCount / hitCubes.Count));
+                materialPropertyBlock.SetColor("tempCol", gradient.Evaluate(proximityCount / heatMapCubes.Count));
             }
             // Set the material color of the instance
             thisCube.GetComponent<Renderer>().material.color = materialPropertyBlock.GetColor("tempCol");
