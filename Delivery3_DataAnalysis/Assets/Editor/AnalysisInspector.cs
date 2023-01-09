@@ -14,8 +14,7 @@ public class AnalysisInspector : EditorWindow
     bool groupEnabled;
     bool myBool = true;
     float myFloat = 1.23f;
-    DataManager[] heatMap;
-    HeatMapType type;
+    HeatMapType heatMap;
 
     // Add menu item named "My Window" to the Window menu
     [MenuItem("Window/HeatMaps")]
@@ -27,23 +26,32 @@ public class AnalysisInspector : EditorWindow
 
     void OnGUI()
     {
+        EditorGUILayout.PrefixLabel("Attributes");
         GUILayout.Label("Data Getters", EditorStyles.boldLabel);
-        if (GUILayout.Button("Get Position Data"))
+
+        heatMap = (HeatMapType)EditorGUILayout.EnumPopup("Example Enum", heatMap);
+
+        GUILayout.Space(10f);
+
+        if (GUILayout.Button("Get " + heatMap.ToString().ToLower() +" Data"))
         {
-            Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetPosition.php");
+            switch (heatMap)
+            {
+                case HeatMapType.HITS:
+                    Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetHits.php");
+                    break;
+                case HeatMapType.DEATH:
+                    Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetDeaths.php");
+                    break;
+                case HeatMapType.POSITION:
+                    Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetPosition.php");
+                    break;
+            }
+            
         }
         GUILayout.Space(10f);
-        if (GUILayout.Button("Get Hits Data"))
-        {
-            Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetHits.php");
-        }
         GUILayout.Space(10f);
-        if (GUILayout.Button("Get Deaths Data"))
-        {
-            Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetDeaths.php");
-        }
-        GUILayout.Space(20f);
-         GUILayout.Label("Clear", EditorStyles.boldLabel);
+        GUILayout.Label("Clear", EditorStyles.boldLabel);
         if (GUILayout.Button("Clear Heatmap"))
         {
             Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorFinishHeatMap();

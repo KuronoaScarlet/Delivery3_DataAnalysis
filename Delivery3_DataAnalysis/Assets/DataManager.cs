@@ -220,14 +220,17 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         posData[i - 1].playerForwardZ = float.Parse(posPoint[5].Replace(".", ","));
                         posData[i - 1].gameTime = float.Parse(posPoint[6].Replace(".", ","));
 
-                        GameObject debugprefab = Instantiate(positionArrow, new Vector3(posData[i - 1].playerPosX, posData[i - 1].playerPosY, posData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
-                        allDebugPrefabs.Add(debugprefab);
-
-                        for(int j = 0; j < allDebugPrefabs.Count; j++)
+                        if (i != 1 && (posData[i-1].playerPosX != posData[i-2].playerPosX && posData[i - 1].playerPosY != posData[i - 2].playerPosY && posData[i - 1].playerPosZ != posData[i - 2].playerPosZ))
                         {
-                            if(j != (allDebugPrefabs.Count - 1))
-                                allDebugPrefabs[j].transform.LookAt(allDebugPrefabs[j+1].transform);
-                        }
+                            GameObject debugprefab = Instantiate(positionArrow, new Vector3(posData[i - 1].playerPosX, posData[i - 1].playerPosY, posData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
+                            allDebugPrefabs.Add(debugprefab);
+
+                            for (int j = 0; j < allDebugPrefabs.Count; j++)
+                            {
+                                if (j != (allDebugPrefabs.Count - 1))
+                                    allDebugPrefabs[j].transform.LookAt(allDebugPrefabs[j + 1].transform);
+                            }
+                        }                        
                     }
                 }
             }
