@@ -168,12 +168,6 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         debugprefab.tag = "HitTag";
                         hitCubes.Add(debugprefab);
                         allDebugPrefabs.Add(debugprefab);
-
-                        for (int j = 0; j < allDebugPrefabs.Count; j++)
-                        {
-                            if (j != (allDebugPrefabs.Count - 1))
-                                allDebugPrefabs[j].transform.LookAt(allDebugPrefabs[j + 1].transform);
-                        }
                     }
                     SetColor(hitCubes);
                 }
@@ -201,13 +195,8 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         deathCubes.Add(debugprefab);
                         allDebugPrefabs.Add(debugprefab);
 
-                        for (int j = 0; j < allDebugPrefabs.Count; j++)
-                        {
-                            if (j != (allDebugPrefabs.Count - 1))
-                                allDebugPrefabs[j].transform.LookAt(allDebugPrefabs[j + 1].transform);
-                        }
-                        SetColor(deathCubes);
                     }
+                    SetColor(deathCubes);
                 }
                 else if(php == "GetPosition.php")
                 {
