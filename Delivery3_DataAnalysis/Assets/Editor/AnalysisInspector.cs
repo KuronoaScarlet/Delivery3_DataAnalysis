@@ -12,9 +12,9 @@ public enum HeatMapType
 public class AnalysisInspector : EditorWindow
 {
     bool groupEnabled;
-    bool myBool = true;
-    float myFloat = 1.23f;
     HeatMapType heatMap;
+    Gradient gradient = new Gradient();
+    float resolution;
 
     // Add menu item named "My Window" to the Window menu
     [MenuItem("Window/HeatMaps")]
@@ -27,9 +27,18 @@ public class AnalysisInspector : EditorWindow
     void OnGUI()
     {
         EditorGUILayout.PrefixLabel("Attributes");
+
+        GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(2f));
+
         GUILayout.Label("Data Getters", EditorStyles.boldLabel);
 
         heatMap = (HeatMapType)EditorGUILayout.EnumPopup("Example Enum", heatMap);
+        if(heatMap == HeatMapType.DEATH || heatMap == HeatMapType.HITS)
+        {
+            GUILayout.Space(10f);
+            EditorGUILayout.GradientField(gradient);
+            resolution = EditorGUILayout.Slider("Resolution", resolution, 25, 45);
+        }
 
         GUILayout.Space(10f);
 
@@ -38,10 +47,10 @@ public class AnalysisInspector : EditorWindow
             switch (heatMap)
             {
                 case HeatMapType.HITS:
-                    Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetHits.php");
+                    Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetHits.php", gradient,resolution);
                     break;
                 case HeatMapType.DEATH:
-                    Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetDeaths.php");
+                    Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetDeaths.php",gradient,resolution);
                     break;
                 case HeatMapType.POSITION:
                     Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorStartHeatMap("GetPosition.php");
@@ -50,15 +59,12 @@ public class AnalysisInspector : EditorWindow
             
         }
         GUILayout.Space(10f);
-        GUILayout.Space(10f);
+        GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(2f));
         GUILayout.Label("Clear", EditorStyles.boldLabel);
+        GUILayout.Space(10f);
         if (GUILayout.Button("Clear Heatmap"))
         {
             Resources.FindObjectsOfTypeAll<DataManager>()[0].GetComponent<DataManager>().EditorFinishHeatMap();
         }
-        groupEnabled = EditorGUILayout.BeginToggleGroup("Optional Settings", groupEnabled);
-        myBool = EditorGUILayout.Toggle("Toggle", myBool);
-        myFloat = EditorGUILayout.Slider("Slider", myFloat, -3, 3);
-        EditorGUILayout.EndToggleGroup();
     }
 }

@@ -66,12 +66,10 @@ public class DataManager : MonoBehaviour, IMessageReceiver
     public HitData[] deathData;
     string[] deathPoints;
     string[] deathDataString;
-    public LayerMask hitLayer;
-    public LayerMask deathLayer;
     List<GameObject> hitCubes = new List<GameObject>();
     List<GameObject> deathCubes = new List<GameObject>();
-    public Gradient gradient;
-    public float proximityDistance = 2.0f;
+    Gradient gradient;
+    float proximityDistance;
 
     SendData data = new SendData();
     private void OnEnable()
@@ -164,7 +162,6 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         hitData[i - 1].gameTime = float.Parse(hitDataString[8].Replace(".", ","));
 
                         GameObject debugprefab = Instantiate(hitsAndDeathsMarker, new Vector3(hitData[i - 1].playerPosX, hitData[i - 1].playerPosY, hitData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
-                        debugprefab.layer = hitLayer;
                         debugprefab.tag = "HitTag";
                         hitCubes.Add(debugprefab);
                         allDebugPrefabs.Add(debugprefab);
@@ -190,7 +187,6 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         deathData[i - 1].gameTime = float.Parse(deathDataString[8].Replace(".", ","));
 
                         GameObject debugprefab = Instantiate(hitsAndDeathsMarker, new Vector3(deathData[i - 1].playerPosX, deathData[i - 1].playerPosY, deathData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
-                        debugprefab.layer = deathLayer;
                         debugprefab.tag = "DeathTag";
                         deathCubes.Add(debugprefab);
                         allDebugPrefabs.Add(debugprefab);
@@ -214,8 +210,8 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         posData[i - 1].playerForwardZ = float.Parse(posPoint[5].Replace(".", ","));
                         posData[i - 1].gameTime = float.Parse(posPoint[6].Replace(".", ","));
 
-                        //if (i != 1 && (posData[i-1].playerPosX != posData[i-2].playerPosX && posData[i - 1].playerPosY != posData[i - 2].playerPosY && posData[i - 1].playerPosZ != posData[i - 2].playerPosZ))
-                        //{
+                        if (i != 1 && (posData[i-1].playerPosX != posData[i-2].playerPosX && posData[i - 1].playerPosZ != posData[i - 2].playerPosZ || posData[i - 1].playerPosY != posData[i - 2].playerPosY))
+                        {
                             GameObject debugprefab = Instantiate(positionArrow, new Vector3(posData[i - 1].playerPosX, posData[i - 1].playerPosY, posData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
                             allDebugPrefabs.Add(debugprefab);
 
@@ -224,7 +220,7 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                                 if (j != (allDebugPrefabs.Count - 1))
                                     allDebugPrefabs[j].transform.LookAt(allDebugPrefabs[j + 1].transform);
                             }
-                        //}                        
+                        }                        
                     }
                 }
             }
@@ -283,7 +279,13 @@ public class DataManager : MonoBehaviour, IMessageReceiver
     }
     public void EditorStartHeatMap(string php)
     {
-        allDebugPrefabs.Clear();
+        StartCoroutine(GetData(php));
+        Debug.Log(php);
+    }
+    public void EditorStartHeatMap(string php, Gradient g, float r)
+    {
+        gradient = g;
+        proximityDistance = r;
         StartCoroutine(GetData(php));
         Debug.Log(php);
     }
@@ -316,7 +318,10 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                 materialPropertyBlock.SetColor("tempCol", gradient.Evaluate(proximityCount / heatMapCubes.Count));
             }
             // Set the material color of the instance
-            thisCube.GetComponent<Renderer>().material.color = materialPropertyBlock.GetColor("tempCol");
+
+            var tempMaterial = new Material(thisCube.GetComponent<Renderer>().sharedMaterial);
+            tempMaterial.color = materialPropertyBlock.GetColor("tempCol");
+            thisCube.GetComponent<Renderer>().sharedMaterial = tempMaterial;
         }
     }
 }
