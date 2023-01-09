@@ -68,26 +68,9 @@ public class DataManager : MonoBehaviour, IMessageReceiver
     string[] deathDataString;
     public LayerMask hitLayer;
     public LayerMask deathsLayer;
-    GameObject[] heatBoxes;
-    float allowableDistance = 5f;
-    public Material cubeMaterial;
-    float red;
-    float blue;
-    float colorAdjuster = 0.2f;
-    //// List to store the position and orientation of the player when they are hit
-    //private List<Vector3> hitCubes = new List<Vector3>();
-
-    //// Prefab for the cube that represents each hit point on the heatmap
-    //public GameObject hitPointPrefab;
-
-    //// Gradient to use for coloring the cubes
-    //public Gradient colorGradient;
-
-    //// The maximum number of hit points that can be displayed on the heatmap
-    //public int maxHitPoints = 1000;
-
-    //// The size of each cube in the heatmap
-    //public float cubeSize = 0.1f;
+    List<GameObject> hitCubes = new List<GameObject>();
+    public Gradient gradient;
+    public float proximityDistance = 2.0f;
 
     SendData data = new SendData();
     private void OnEnable()
@@ -164,6 +147,7 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                 {
                     hitPoints = lastQuery.Split("*");
                     hitData = new HitData[hitPoints.Length-1];
+                    hitCubes.Clear();
                     for (int i = 1; i < hitPoints.Length; i++)
                     {
                         hitDataString = hitPoints[i].Split("/");
@@ -181,9 +165,8 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         GameObject debugprefab = Instantiate(hitsAndDeathsMarker, new Vector3(hitData[i - 1].playerPosX, hitData[i - 1].playerPosY, hitData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
                         debugprefab.layer = hitLayer;
                         debugprefab.tag = "HitTag";
-                        heatBoxes = GameObject.FindGameObjectsWithTag("HitTag");
+                        hitCubes.Add(debugprefab);
                         SetColor(debugprefab);
-                        //ColorCubes();
 
                         allDebugPrefabs.Add(debugprefab);
 
@@ -319,44 +302,31 @@ public class DataManager : MonoBehaviour, IMessageReceiver
 
     public void SetColor(GameObject hitCube)
     {
-        foreach (GameObject item in heatBoxes)
+        MaterialPropertyBlock materialPropertyBlock = new MaterialPropertyBlock();
+        float proximityCount = 0;
+        foreach (GameObject item in hitCubes)
         {
-            Vector2 distCheck = new Vector2(item.transform.position.x, item.transform.position.z) - new Vector2(hitCube.transform.position.x, hitCube.transform.position.z);
-            float dist = distCheck.sqrMagnitude;
-            Debug.Log("Distances " + dist);
-            if (dist <= allowableDistance)
+            if (Vector3.Distance(hitCube.transform.position, item.transform.position) <= proximityDistance)
             {
-                // Here's where the color is actually adjusted.
-                // It starts blue (cool) by default and moves towards red (hot)
-                red += colorAdjuster;
-                blue -= colorAdjuster;
-
-                cubeMaterial.color = new Color(red, cubeMaterial.color.g, blue);
+                proximityCount++;
             }
+            if (proximityCount > 0)
+            {
+                GradientColorKey[] colorKeys = new GradientColorKey[3];
+                colorKeys[0].color = Color.blue;
+                colorKeys[0].time = 0.0f;
+                colorKeys[1].color = Color.green;
+                colorKeys[1].time = 0.5f;
+                colorKeys[2].color = Color.red;
+                colorKeys[2].time = 1.0f;
+                gradient.SetKeys(colorKeys, new GradientAlphaKey[0]);
+                materialPropertyBlock.SetColor("tempCol",gradient.Evaluate(proximityCount / hitCubes.Count)) ;
+            }
+
+            // Set the material color of the instance
+            hitCube.GetComponent<Renderer>().material.color = materialPropertyBlock.GetColor("tempCol");
         }
     }
-    //void ColorCubes()
-    //{
-    //    // Loop through all the hit points and color the cubes
-    //    foreach (Vector3 hitCube in hitCubes)
-    //    {
-    //        // Find all the cubes within a certain radius of the current hit point
-    //        Collider[] colliders = Physics.OverlapSphere(hitCube, cubeSize * 2);
-
-    //        // Calculate the color for the current hit point based on the number of hit points in its proximity
-    //        Color color = colorGradient.Evaluate(colliders.Length / maxHitPoints);
-
-    //        // Set the color of each collider (i.e. each cube)
-    //        foreach (Collider collider in colliders)
-    //        {
-    //            Renderer renderer = collider.GetComponent<Renderer>();
-    //            if (renderer != null)
-    //            {
-    //                renderer.material.color = color;
-    //            }
-    //        }
-    //    }
-    //}
 }
 
 ///////////////PHP////////////////
