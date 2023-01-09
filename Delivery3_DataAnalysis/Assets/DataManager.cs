@@ -166,8 +166,6 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         debugprefab.layer = hitLayer;
                         debugprefab.tag = "HitTag";
                         hitCubes.Add(debugprefab);
-                        SetColor(debugprefab);
-
                         allDebugPrefabs.Add(debugprefab);
 
                         for (int j = 0; j < allDebugPrefabs.Count; j++)
@@ -176,6 +174,7 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                                 allDebugPrefabs[j].transform.LookAt(allDebugPrefabs[j + 1].transform);
                         }
                     }
+                    SetColor();
                 }
                 else if(php == "GetDeaths.php")
                 {
@@ -300,31 +299,27 @@ public class DataManager : MonoBehaviour, IMessageReceiver
         allDebugPrefabs.Clear();
     }
 
-    public void SetColor(GameObject hitCube)
+    public void SetColor()
     {
-        MaterialPropertyBlock materialPropertyBlock = new MaterialPropertyBlock();
-        float proximityCount = 0;
-        foreach (GameObject item in hitCubes)
+        foreach (GameObject thisCube in hitCubes)
         {
-            if (Vector3.Distance(hitCube.transform.position, item.transform.position) <= proximityDistance)
+            MaterialPropertyBlock materialPropertyBlock = new MaterialPropertyBlock();
+            float proximityCount = 0;
+
+            foreach (GameObject otherCube in hitCubes)
             {
-                proximityCount++;
+                if (Vector3.Distance(otherCube.transform.position, thisCube.transform.position) <= proximityDistance)
+                {
+                    proximityCount++;
+                }
+
             }
             if (proximityCount > 0)
             {
-                GradientColorKey[] colorKeys = new GradientColorKey[3];
-                colorKeys[0].color = Color.blue;
-                colorKeys[0].time = 0.0f;
-                colorKeys[1].color = Color.green;
-                colorKeys[1].time = 0.5f;
-                colorKeys[2].color = Color.red;
-                colorKeys[2].time = 1.0f;
-                gradient.SetKeys(colorKeys, new GradientAlphaKey[0]);
-                materialPropertyBlock.SetColor("tempCol",gradient.Evaluate(proximityCount / hitCubes.Count)) ;
+                materialPropertyBlock.SetColor("tempCol", gradient.Evaluate(proximityCount / hitCubes.Count));
             }
-
             // Set the material color of the instance
-            hitCube.GetComponent<Renderer>().material.color = materialPropertyBlock.GetColor("tempCol");
+            thisCube.GetComponent<Renderer>().material.color = materialPropertyBlock.GetColor("tempCol");
         }
     }
 }
