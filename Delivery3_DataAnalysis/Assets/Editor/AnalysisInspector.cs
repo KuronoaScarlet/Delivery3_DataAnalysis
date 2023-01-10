@@ -45,7 +45,7 @@ public class AnalysisInspector : EditorWindow
 
         GUILayout.Label("Data Getters", EditorStyles.boldLabel);
 
-        heatMap = (HeatMapType)EditorGUILayout.EnumPopup("Example Enum", heatMap);
+        heatMap = (HeatMapType)EditorGUILayout.EnumPopup("Heatmap type", heatMap);
         if(heatMap == HeatMapType.DEATH || heatMap == HeatMapType.HITS)
         {
             GUILayout.Space(10f);
