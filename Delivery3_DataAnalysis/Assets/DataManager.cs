@@ -160,7 +160,8 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         hitData[i - 1].gameTime = float.Parse(hitDataString[8].Replace(".", ","));
                         
                         //Create debug cubes for hits
-                        GameObject debugprefab = Instantiate(hitsMarker, new Vector3(hitData[i - 1].playerPosX, hitData[i - 1].playerPosY, hitData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
+                        GameObject debugprefab = Instantiate(hitsMarker, new Vector3(hitData[i - 1].playerPosX,hitData[i - 1].playerPosY,
+                            hitData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
                         debugprefab.tag = "HitTag";
                         hitCubes.Add(debugprefab);
                         allDebugPrefabs.Add(debugprefab);
@@ -188,7 +189,8 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         deathData[i - 1].gameTime = float.Parse(deathDataString[8].Replace(".", ","));
                         
                         //Create debug cubes for deaths
-                        GameObject debugprefab = Instantiate(deathsMarker, new Vector3(deathData[i - 1].playerPosX, deathData[i - 1].playerPosY, deathData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
+                        GameObject debugprefab = Instantiate(deathsMarker, new Vector3(deathData[i - 1].playerPosX, deathData[i - 1].playerPosY,
+                            deathData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
                         debugprefab.tag = "DeathTag";
                         deathCubes.Add(debugprefab);
                         allDebugPrefabs.Add(debugprefab);
@@ -214,9 +216,11 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         posData[i - 1].gameTime = float.Parse(posPoint[6].Replace(".", ","));
 
                         //Set path
-                        if (i != 1 && (posData[i-1].playerPosX != posData[i-2].playerPosX && posData[i - 1].playerPosZ != posData[i - 2].playerPosZ || posData[i - 1].playerPosY != posData[i - 2].playerPosY))
+                        if (i != 1 && (posData[i-1].playerPosX != posData[i-2].playerPosX && posData[i - 1].playerPosZ != posData[i - 2].playerPosZ
+                            || posData[i - 1].playerPosY != posData[i - 2].playerPosY))
                         {
-                            GameObject debugprefab = Instantiate(positionArrow, new Vector3(posData[i - 1].playerPosX, posData[i - 1].playerPosY, posData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
+                            GameObject debugprefab = Instantiate(positionArrow, new Vector3(posData[i - 1].playerPosX, posData[i - 1].playerPosY,
+                                posData[i - 1].playerPosZ),Quaternion.identity, GameObject.Find("Trash").transform);
                             allDebugPrefabs.Add(debugprefab);
 
                             for (int j = 0; j < allDebugPrefabs.Count; j++)
