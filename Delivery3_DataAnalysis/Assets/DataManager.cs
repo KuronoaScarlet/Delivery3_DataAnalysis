@@ -92,31 +92,27 @@ public class DataManager : MonoBehaviour, IMessageReceiver
     #region Hits&Death
     public void OnReceiveMessage(MessageType type, object sender, object msg)
     {
-        Vector3 playerPosition = ((MonoBehaviour)sender).transform.position;
-        Vector3 enemy = ((DamageMessage)msg).damager.gameObject.transform.position;
-        string damagerName = ((DamageMessage)msg).damager.gameObject.transform.root.name;
+        playerPos = ((MonoBehaviour)sender).transform.position; ;
+        enemyPos = ((DamageMessage)msg).damager.gameObject.transform.position; ;
+        enemyName = ((DamageMessage)msg).damager.gameObject.transform.root.name; ;
+        gameTime = Time.time.ToString().Replace(",", ".");
 
         switch (type)
         {
             case MessageType.DAMAGED:
-                HitAdded(playerPosition, enemy, damagerName, Time.time, "HitTracker.php");
+                HitAdded("HitTracker.php");
                 break;
             case MessageType.DEAD:
-                HitAdded(playerPosition, enemy, damagerName, Time.time, "HitTracker.php");
-                HitAdded(playerPosition, enemy, damagerName, Time.time, "DeathTracker.php");
+                HitAdded("HitTracker.php");
+                HitAdded("DeathTracker.php");
                 break;
             default:
                 break;
         }
     }
 
-    void HitAdded(Vector3 player, Vector3 enemy, string eN, float time, string php)
+    void HitAdded(string php)
     {
-        playerPos = player;
-        enemyPos = enemy;
-        enemyName = eN;
-        gameTime = time.ToString().Replace(",", ".");
-
         WWWForm form = new WWWForm();
         form.AddField("playerPosX", playerPos.x.ToString().Replace(",", "."));
         form.AddField("playerPosY", playerPos.y.ToString().Replace(",", "."));
@@ -162,12 +158,14 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         hitData[i - 1].enemyPosY = float.Parse(hitDataString[6].Replace(".", ","));
                         hitData[i - 1].enemyPosZ = float.Parse(hitDataString[7].Replace(".", ","));
                         hitData[i - 1].gameTime = float.Parse(hitDataString[8].Replace(".", ","));
-
+                        
+                        //Create debug cubes for hits
                         GameObject debugprefab = Instantiate(hitsMarker, new Vector3(hitData[i - 1].playerPosX, hitData[i - 1].playerPosY, hitData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
                         debugprefab.tag = "HitTag";
                         hitCubes.Add(debugprefab);
                         allDebugPrefabs.Add(debugprefab);
                     }
+                    //Set new color material
                     SetColor(hitCubes);
                 }
                 else if(php == "GetDeaths.php")
@@ -188,13 +186,15 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         deathData[i - 1].enemyPosY = float.Parse(deathDataString[6].Replace(".", ","));
                         deathData[i - 1].enemyPosZ = float.Parse(deathDataString[7].Replace(".", ","));
                         deathData[i - 1].gameTime = float.Parse(deathDataString[8].Replace(".", ","));
-
+                        
+                        //Create debug cubes for deaths
                         GameObject debugprefab = Instantiate(deathsMarker, new Vector3(deathData[i - 1].playerPosX, deathData[i - 1].playerPosY, deathData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
                         debugprefab.tag = "DeathTag";
                         deathCubes.Add(debugprefab);
                         allDebugPrefabs.Add(debugprefab);
 
                     }
+                    //Set new color material
                     SetColor(deathCubes);
                 }
                 else if(php == "GetPosition.php")
@@ -213,6 +213,7 @@ public class DataManager : MonoBehaviour, IMessageReceiver
                         posData[i - 1].playerForwardZ = float.Parse(posPoint[5].Replace(".", ","));
                         posData[i - 1].gameTime = float.Parse(posPoint[6].Replace(".", ","));
 
+                        //Set path
                         if (i != 1 && (posData[i-1].playerPosX != posData[i-2].playerPosX && posData[i - 1].playerPosZ != posData[i - 2].playerPosZ || posData[i - 1].playerPosY != posData[i - 2].playerPosY))
                         {
                             GameObject debugprefab = Instantiate(positionArrow, new Vector3(posData[i - 1].playerPosX, posData[i - 1].playerPosY, posData[i - 1].playerPosZ), Quaternion.identity, GameObject.Find("Trash").transform);
