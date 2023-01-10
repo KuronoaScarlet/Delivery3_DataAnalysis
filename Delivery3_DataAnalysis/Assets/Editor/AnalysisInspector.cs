@@ -17,6 +17,18 @@ public class AnalysisInspector : EditorWindow
     float resolution;
     float transparency;
 
+    private void OnEnable()
+    {
+        GradientColorKey[] colorKeys = new GradientColorKey[3];
+        colorKeys[0].color = Color.blue;
+        colorKeys[0].time = 0.0f;
+        colorKeys[1].color = Color.green;
+        colorKeys[1].time = 0.5f;
+        colorKeys[2].color = Color.red;
+        colorKeys[2].time = 1.0f;
+        gradient.SetKeys(colorKeys, gradient.alphaKeys);
+    }
+
     // Add menu item named "My Window" to the Window menu
     [MenuItem("Window/HeatMaps")]
     public static void ShowWindow()
